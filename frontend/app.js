@@ -1,4 +1,4 @@
-const API_URL = "http://<VM-IP>:5000/messages"; // Update with actual IP or domain
+const API_URL = "http://10.50.20.62:5000/messages"; // Update with actual IP or domain
 
 function sendMessage() {
   const input = document.getElementById("messageInput");

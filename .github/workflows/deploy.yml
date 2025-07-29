@@ -1,4 +1,4 @@
-name: Deploy to VM
+name: Deploy to Linux VM
 
 on:
   push:
@@ -10,20 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/id_ed25519
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H 10.50.20.62 >> ~/.ssh/known_hosts # Replace with your VM's IP address
+        ssh-keyscan -H 10.50.20.62 >> ~/.ssh/known_hosts
 
-    - name: Copy files to VM
+    - name: Test SSH Connection
       run: |
-        rsync -avz -e "ssh -i ~/.ssh/id_ed25519" ./ systems@10.50.20.62:/home/docker/app
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 systems@10.50.20.62 "echo ✅ SSH connection successful"
 
-    - name: Run Docker Compose
+    - name: Deploy via SSH and Docker Compose
       run: |
-        ssh -i ~/.ssh/id_ed25519 systems@10.50.20.62 'cd /home/docker/app && docker compose up -d --build'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 systems@10.50.20.62 << 'EOF'
+          cd ~/projects/RoadtoDevOps
+          docker compose down
+          git pull origin main
+          docker compose up -d --build
+        EOF

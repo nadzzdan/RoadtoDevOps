@@ -23,7 +23,7 @@ jobs:
     - name: Deploy to VM
       run: |
         ssh -i ~/.ssh/id_ed25519 systems@10.50.20.62 << 'EOF'
-          cd /path/to/your/project  # e.g., /home/systems/backend
+          cd cd /home/systems/DevOpsBE  # e.g., /home/systems/backend
           git pull
           docker compose pull
           docker compose up -d --build

@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: ghcr.io/nadzzdan/backend-service:latest  # Use GHCR if pushing image
+    environment:
+      DB_HOST: db
+      DB_NAME: myapp
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:
